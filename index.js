@@ -1,27 +1,41 @@
 const gridContainer = document.getElementById("grid-container");
 
-function fetchDataFromBackend() {
-  fetch("http://localhost:5502/", {
+window.addEventListener("load", async () => {
+  const data = await fetchDataFromBackend();
+
+  console.log("data:", data);
+
+  data.forEach((element, index) => {
+    console.log(element);
+
+    for (key in element) {
+      createGridElement("div", `${key}: ${element[key]}`, index);
+    }
+  });
+});
+
+async function fetchDataFromBackend() {
+  // define url and header at the very top of the code
+  const url = "http://localhost:5502/api";
+  const header = {
     headers: {
       "Content-Type": "application/json",
     },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("all requested data from the backend: ", data);
+  };
 
-      data.forEach((element, index) => {
-        console.log(element);
+  try {
+    const response = await fetch(url, header);
 
-        for (key in element) {
-          createGridElement("div", `${key}: ${element[key]}`, index);
-        }
-      });
-    })
-    .catch((err) => console.error(err));
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    } else {
+      const json = await response.json();
+      return json;
+    }
+  } catch (error) {
+    console.error(error.message);
+  }
 }
-
-fetchDataFromBackend();
 
 function createGridElement(HTMLtag, innerText, id) {
   const newElement = document.createElement(HTMLtag);
